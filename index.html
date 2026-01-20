@@ -13,7 +13,7 @@
         /* --- VARIABLES --- */
         :root {
             --bg-color: #0c0c0c;
-            --bg-secondary: #131313;
+            --bg-card: #131313; /* Solid Dark Background for Cards */
             --text-color: #e0e0e0;
             --accent-gold: #D4AF37; 
             --accent-gold-bright: #ffdb73;
@@ -42,16 +42,22 @@
         }
 
         @keyframes modalPop {
-            0% { transform: scale(0.8); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
+            0% { transform: scale(0.8) translateY(20px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
         }
 
-        /* --- INTERACTIVE CARDS (BORDER ONLY) --- */
+        @keyframes shine {
+            0% { left: -100%; opacity: 0; }
+            50% { opacity: 0.1; }
+            100% { left: 200%; opacity: 0; }
+        }
+
+        /* --- INTERACTIVE CARDS (STRICT BORDER) --- */
         .interactive-card {
             position: relative;
-            background: var(--bg-secondary); /* Keeps inside dark */
+            background: var(--bg-card); /* VITAL: Keeps the inside SOLID DARK */
             border-radius: 12px;
-            z-index: 1;
+            z-index: 1; /* Ensures content sits on top */
             padding: 50px 40px; 
             height: 100%;
             display: flex;
@@ -59,52 +65,55 @@
             justify-content: center;
             transition: transform 0.3s ease;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05); /* Subtle border when idle */
         }
 
-        /* The Rainbow Border Layer */
+        /* The Rainbow Layer - STRICTLY BEHIND (-1) */
         .interactive-card::before {
             content: ''; 
             position: absolute; 
-            inset: -2px; /* Controls border thickness */
-            border-radius: 14px; 
+            inset: -2px; /* 2px Thickness of the rainbow border */
+            border-radius: 14px; /* Slightly larger than card */
             background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8);
             background-size: 300%;
-            z-index: -1; 
-            opacity: 0; /* Hidden by default on desktop */
-            transition: opacity 0.3s ease;
+            z-index: -1; /* Puts it BEHIND the black card */
+            opacity: 0; 
+            transition: opacity 0.4s ease;
         }
 
-        /* Desktop Hover: Show Rainbow Border */
+        /* Desktop Hover: Show Rainbow Border Only */
         @media (hover: hover) {
             .interactive-card:hover { 
                 transform: translateY(-8px); 
+                background: var(--bg-card); /* Force Solid Background */
+                border-color: transparent; /* Remove grey border, show rainbow */
             }
             .interactive-card:hover::before { 
                 opacity: 1; 
                 animation: rainbow-flow 3s linear infinite;
-                filter: blur(2px); /* Soft glow */
+                filter: blur(2px); /* Soft glow on the edges */
             }
         }
 
-        /* Mobile: Always Show Subtle Rainbow Border */
+        /* Mobile: Constant Subtle Rainbow Border */
         @media (hover: none) {
             .interactive-card { padding: 40px 30px; }
             .interactive-card::before { 
                 opacity: 1; 
                 animation: rainbow-flow 6s linear infinite; 
-                filter: blur(1px); /* Sharper on mobile */
+                filter: blur(0px); /* Sharp lines for mobile */
             }
             .interactive-card:active { transform: scale(0.98); }
         }
 
-        /* --- UNIFIED RAINBOW BUTTONS --- */
+        /* --- UNIFIED RAINBOW BUTTONS (Clicky & Good) --- */
         .rainbow-btn {
             position: relative;
             display: inline-flex;
             justify-content: center;
             align-items: center;
             padding: 16px 32px;
-            background: transparent; /* Transparent inside */
+            background: transparent;
             color: var(--accent-gold);
             font-weight: 700;
             text-transform: uppercase;
@@ -118,7 +127,6 @@
             white-space: nowrap;
         }
 
-        /* Button Border trick */
         .rainbow-btn::before {
             content: ''; position: absolute; inset: 0; border-radius: 4px; padding: 1px;
             background: var(--accent-gold); 
@@ -144,8 +152,17 @@
         .rainbow-btn:hover { color: #fff; transform: scale(1.02); text-shadow: 0 0 8px rgba(255,255,255,0.5); }
         .rainbow-btn:hover::after { opacity: 1; animation: rainbow-flow 2s linear infinite; }
         .rainbow-btn:hover::before { opacity: 0; }
-
         .btn-sm { padding: 10px 20px; font-size: 0.75rem; }
+
+        /* --- TEXT GRADIENTS --- */
+        .gold-text-gradient {
+            background: linear-gradient(to right, #D4AF37, #FEE715, #D4AF37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            font-family: var(--font-display);
+            text-shadow: 0px 0px 0px rgba(0,0,0,0); /* Removes default shadow for clean clip */
+        }
 
         /* --- LAYOUT --- */
         h1, h2, h3, h4 { font-family: var(--font-display); }
@@ -167,7 +184,7 @@
         nav {
             position: fixed; top: 0; width: 100%; padding: 25px 5%;
             display: flex; justify-content: space-between; align-items: center;
-            z-index: 100; background: rgba(12, 12, 12, 0.9); backdrop-filter: blur(15px);
+            z-index: 100; background: rgba(12, 12, 12, 0.95); backdrop-filter: blur(15px);
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .nav-logo { font-size: clamp(1.2rem, 4vw, 1.6rem); color: var(--accent-gold); font-weight: 700; letter-spacing: 1px; }
@@ -193,16 +210,15 @@
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
             gap: 50px; 
         }
-        .service-card h3 { font-size: 1.8rem; margin-bottom: 15px; color: #fff; }
 
-        .owner-section { display: flex; flex-wrap: wrap; min-height: 85vh; background: var(--bg-secondary); }
+        .owner-section { display: flex; flex-wrap: wrap; min-height: 85vh; background: var(--bg-card); }
         .owner-image-box {
             flex: 1 1 500px; min-height: 500px; position: relative;
             background-image: url('image2.jpg'); background-size: cover; background-position: center;
         }
         .owner-image-box::after {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to right, transparent 0%, var(--bg-secondary) 98%);
+            background: linear-gradient(to right, transparent 0%, var(--bg-card) 98%);
         }
         .owner-text-box { flex: 1 1 500px; padding: 120px 100px; display: flex; flex-direction: column; justify-content: center; z-index: 2; }
         
@@ -212,40 +228,46 @@
         .footer-item a:not(.rainbow-btn) { margin-bottom: 12px; transition: 0.3s; display: block; }
         .footer-item a:not(.rainbow-btn):hover { color: var(--accent-gold); }
 
-        /* --- STYLISH MODALS --- */
+        /* --- STYLISH MODALS (More Effects) --- */
         .modal { 
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); /* Blur behind modal */
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); 
             z-index: 9999; justify-content: center; align-items: center; padding: 20px; 
         }
         
+        /* Modal Content Box */
         .modal-content { 
-            background: #121212; 
+            background: #101010; /* Very dark grey, not pure black */
             padding: 50px 40px; 
             border-radius: 20px; 
             text-align: center; 
             max-width: 480px; 
             width: 100%; 
             position: relative;
-            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy Pop Effect */
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
-            border: 1px solid rgba(255,255,255,0.1);
+            z-index: 10;
+            overflow: hidden; /* Contains the shine effect */
+            animation: modalPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 1);
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* Rainbow Border for Modal */
+        /* Modal Rainbow Border (Strictly Behind) */
         .modal-content::before {
             content: ''; position: absolute; inset: -2px; border-radius: 22px; 
             background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff);
-            background-size: 300%; z-index: -1; animation: rainbow-flow 5s linear infinite;
+            background-size: 300%; 
+            z-index: -2; /* Far behind */
+            animation: rainbow-flow 5s linear infinite;
         }
-
-        /* Gold Gradient Text */
-        .gold-text-gradient {
-            background: linear-gradient(to right, #D4AF37, #FEE715, #D4AF37);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 700;
-            font-family: var(--font-display);
+        
+        /* Modal "Spotlight/Shine" Effect inside */
+        .modal-content::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            transform: skewX(-20deg);
+            z-index: -1;
+            pointer-events: none;
+            animation: shine 6s infinite;
         }
 
         .close-btn { 
@@ -253,7 +275,7 @@
             font-size: 2.5rem; color: #666; background: none; border: none; 
             line-height: 1; transition: 0.3s; z-index: 10000; cursor: pointer;
         }
-        .close-btn:hover { color: #fff; transform: scale(1.1) rotate(90deg); }
+        .close-btn:hover { color: #fff; transform: scale(1.1) rotate(90deg); text-shadow: 0 0 10px #fff; }
 
         /* --- MOBILE OPTIMIZATIONS --- */
         @media (max-width: 968px) {
@@ -266,7 +288,7 @@
             
             .owner-image-box { order: 1; min-height: 350px; width: 100%; flex: auto; }
             .owner-text-box { order: 2; flex: auto; padding: 60px 25px; text-align: center; }
-            .owner-image-box::after { background: linear-gradient(to bottom, transparent 0%, var(--bg-secondary) 95%); }
+            .owner-image-box::after { background: linear-gradient(to bottom, transparent 0%, var(--bg-card) 95%); }
             
             .quote-box { border-left: none !important; border-top: 3px solid var(--accent-gold); padding-left: 0 !important; padding-top: 20px; }
             
