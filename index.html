@@ -13,7 +13,7 @@
         /* --- VARIABLES --- */
         :root {
             --bg-color: #0c0c0c;
-            --bg-card: #131313; /* Solid Dark Background for Cards */
+            --bg-card: #131313; 
             --text-color: #e0e0e0;
             --accent-gold: #D4AF37; 
             --accent-gold-bright: #ffdb73;
@@ -42,7 +42,7 @@
         }
 
         @keyframes modalPop {
-            0% { transform: scale(0.8) translateY(20px); opacity: 0; }
+            0% { transform: scale(0.9) translateY(10px); opacity: 0; }
             100% { transform: scale(1) translateY(0); opacity: 1; }
         }
 
@@ -52,12 +52,13 @@
             100% { left: 200%; opacity: 0; }
         }
 
-        /* --- INTERACTIVE CARDS (STRICT BORDER) --- */
+        /* --- INTERACTIVE CARDS (FIXED LAYERING) --- */
         .interactive-card {
             position: relative;
-            background: var(--bg-card); /* VITAL: Keeps the inside SOLID DARK */
+            /* No background here, we use ::after for the solid black layer */
+            background: transparent; 
             border-radius: 12px;
-            z-index: 1; /* Ensures content sits on top */
+            z-index: 1; 
             padding: 50px 40px; 
             height: 100%;
             display: flex;
@@ -65,48 +66,53 @@
             justify-content: center;
             transition: transform 0.3s ease;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255, 255, 255, 0.05); /* Subtle border when idle */
         }
 
-        /* The Rainbow Layer - STRICTLY BEHIND (-1) */
+        /* LAYER 1: The Rainbow Border (Deepest) */
         .interactive-card::before {
             content: ''; 
             position: absolute; 
-            inset: -2px; /* 2px Thickness of the rainbow border */
-            border-radius: 14px; /* Slightly larger than card */
+            inset: -2px; /* Sticks out by 2px to create border */
+            border-radius: 14px; 
             background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8);
             background-size: 300%;
-            z-index: -1; /* Puts it BEHIND the black card */
-            opacity: 0; 
+            z-index: -2; /* Deepest layer */
+            opacity: 0; /* Hidden by default on desktop */
             transition: opacity 0.4s ease;
         }
 
-        /* Desktop Hover: Show Rainbow Border Only */
+        /* LAYER 2: The Solid Black Background (Middle) */
+        .interactive-card::after {
+            content: '';
+            position: absolute;
+            inset: 0; /* Fits exactly inside */
+            background: var(--bg-card); /* Solid #131313 */
+            border-radius: 12px;
+            z-index: -1; /* Sits on top of rainbow, behind text */
+        }
+
+        /* Desktop Hover: Show Rainbow Border */
         @media (hover: hover) {
-            .interactive-card:hover { 
-                transform: translateY(-8px); 
-                background: var(--bg-card); /* Force Solid Background */
-                border-color: transparent; /* Remove grey border, show rainbow */
-            }
+            .interactive-card:hover { transform: translateY(-8px); }
             .interactive-card:hover::before { 
                 opacity: 1; 
                 animation: rainbow-flow 3s linear infinite;
-                filter: blur(2px); /* Soft glow on the edges */
+                filter: blur(4px); 
             }
         }
 
-        /* Mobile: Constant Subtle Rainbow Border */
+        /* Mobile: Always Show Subtle Rainbow Border */
         @media (hover: none) {
             .interactive-card { padding: 40px 30px; }
             .interactive-card::before { 
                 opacity: 1; 
                 animation: rainbow-flow 6s linear infinite; 
-                filter: blur(0px); /* Sharp lines for mobile */
+                filter: blur(2px); 
             }
             .interactive-card:active { transform: scale(0.98); }
         }
 
-        /* --- UNIFIED RAINBOW BUTTONS (Clicky & Good) --- */
+        /* --- UNIFIED RAINBOW BUTTONS --- */
         .rainbow-btn {
             position: relative;
             display: inline-flex;
@@ -127,6 +133,7 @@
             white-space: nowrap;
         }
 
+        /* Button Masking Trick */
         .rainbow-btn::before {
             content: ''; position: absolute; inset: 0; border-radius: 4px; padding: 1px;
             background: var(--accent-gold); 
@@ -161,14 +168,12 @@
             -webkit-text-fill-color: transparent;
             font-weight: 700;
             font-family: var(--font-display);
-            text-shadow: 0px 0px 0px rgba(0,0,0,0); /* Removes default shadow for clean clip */
         }
 
         /* --- LAYOUT --- */
         h1, h2, h3, h4 { font-family: var(--font-display); }
         a { text-decoration: none; color: inherit; }
 
-        /* Cursor */
         #cursor-dot {
             position: fixed; width: 10px; height: 10px;
             background-color: var(--accent-gold-bright);
@@ -205,11 +210,7 @@
             border-radius: 50%; transition: transform 0.1s ease-out;
         }
 
-        .services-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-            gap: 50px; 
-        }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 50px; }
 
         .owner-section { display: flex; flex-wrap: wrap; min-height: 85vh; background: var(--bg-card); }
         .owner-image-box {
@@ -228,47 +229,56 @@
         .footer-item a:not(.rainbow-btn) { margin-bottom: 12px; transition: 0.3s; display: block; }
         .footer-item a:not(.rainbow-btn):hover { color: var(--accent-gold); }
 
-        /* --- STYLISH MODALS (More Effects) --- */
+        /* --- STYLISH MODALS (FIXED) --- */
         .modal { 
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); 
             z-index: 9999; justify-content: center; align-items: center; padding: 20px; 
         }
         
-        /* Modal Content Box */
+        /* Modal Box */
         .modal-content { 
-            background: #101010; /* Very dark grey, not pure black */
+            position: relative;
+            background: transparent; /* TRANSPARENT so ::after can be the black bg */
             padding: 50px 40px; 
             border-radius: 20px; 
             text-align: center; 
             max-width: 480px; 
             width: 100%; 
-            position: relative;
             z-index: 10;
-            overflow: hidden; /* Contains the shine effect */
+            overflow: visible;
             animation: modalPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 1);
-            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* Modal Rainbow Border (Strictly Behind) */
+        /* Layer 1: Rainbow Border (Deepest) */
         .modal-content::before {
             content: ''; position: absolute; inset: -2px; border-radius: 22px; 
             background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff);
             background-size: 300%; 
-            z-index: -2; /* Far behind */
+            z-index: -2; 
             animation: rainbow-flow 5s linear infinite;
         }
-        
-        /* Modal "Spotlight/Shine" Effect inside */
+
+        /* Layer 2: Black Background (Middle) */
         .modal-content::after {
-            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-            transform: skewX(-20deg);
+            content: ''; position: absolute; inset: 0; border-radius: 20px;
+            background: #131313; /* Solid Black */
             z-index: -1;
+        }
+
+        /* Inner Spotlight Effect (On top of black, behind text) */
+        .modal-spotlight {
+            position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+            transform: skewX(-20deg);
+            z-index: 0; /* Above black background */
             pointer-events: none;
             animation: shine 6s infinite;
         }
+
+        /* Ensure text sits on top */
+        .modal-content h3, .modal-content p, .modal-content div { position: relative; z-index: 2; }
 
         .close-btn { 
             position: absolute; top: 15px; right: 20px; 
@@ -283,20 +293,14 @@
             .hero-text div { justify-content: center; }
             .hero-image-container { height: 350px; width: 100%; }
             #magnetic-logo { width: 60%; }
-            
             .section { padding: 80px 5%; }
-            
             .owner-image-box { order: 1; min-height: 350px; width: 100%; flex: auto; }
             .owner-text-box { order: 2; flex: auto; padding: 60px 25px; text-align: center; }
             .owner-image-box::after { background: linear-gradient(to bottom, transparent 0%, var(--bg-card) 95%); }
-            
             .quote-box { border-left: none !important; border-top: 3px solid var(--accent-gold); padding-left: 0 !important; padding-top: 20px; }
-            
             nav { padding: 15px 5%; flex-wrap: wrap; justify-content: center; gap: 15px; }
             .nav-logo { width: 100%; text-align: center; margin-bottom: 5px; }
-            
             .services-grid { grid-template-columns: 1fr; gap: 30px; }
-            
             .footer-grid { text-align: center; }
             .footer-item { align-items: center !important; }
             .footer-item a.rainbow-btn { margin: 0 auto 10px; }
@@ -325,7 +329,6 @@
                     <a href="https://wa.me/918638845069?text=Hello%20Aparajita%20Studio,%20I%20am%20interested%20in%20your%20services." class="rainbow-btn hover-trigger">WhatsApp Us</a>
                 </div>
             </div>
-            
             <div class="hero-image-container" id="logo-boundary">
                 <img src="image.png" id="magnetic-logo" alt="Studio Round Logo">
             </div>
@@ -395,6 +398,7 @@
 
     <div id="contactModal" class="modal">
         <div class="modal-content">
+            <div class="modal-spotlight"></div>
             <button class="close-btn hover-trigger" onclick="closeModal('contactModal')">&times;</button>
             
             <h3 class="gold-text-gradient" style="font-size: 2rem; margin-bottom: 25px;">Contact Us</h3>
@@ -409,6 +413,7 @@
 
     <div id="privacyModal" class="modal">
         <div class="modal-content">
+            <div class="modal-spotlight"></div>
             <button class="close-btn hover-trigger" onclick="closeModal('privacyModal')">&times;</button>
             
             <h3 class="gold-text-gradient" style="font-size: 2rem; margin-bottom: 25px;">Privacy Policy</h3>
